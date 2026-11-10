@@ -4,6 +4,7 @@ No shell execution, no account disabling, no changes outside the dedicated lab s
 An expiring nftables set enforces rollback independently of this process.
 """
 import ipaddress
+import argparse
 import json
 import os
 from pathlib import Path
@@ -29,7 +30,11 @@ def plan(alert, policy):
 
 
 def main():
-    path = Path("/etc/campus/response-policy.json")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--policy", default="/etc/campus/response-policy.json")
+    parser.add_argument("--log", default="/var/ossec/logs/active-responses.log")
+    args = parser.parse_args()
+    path = Path(args.policy)
     policy = json.loads(path.read_text())
     if policy["execute"]:
         status = path.stat()
@@ -47,7 +52,7 @@ def main():
         command = ["/usr/sbin/nft", "add", "element", "inet", "campus", "quarantine_v4",
                    "{", proposal["address"], "timeout", "300s", "}"]
         subprocess.run(command, check=True, timeout=5, capture_output=True)
-    with open("/var/ossec/logs/active-responses.log", "a", encoding="utf-8") as log:
+    with open(args.log, "a", encoding="utf-8") as log:
         log.write(json.dumps({"campus_response": proposal}, sort_keys=True) + "\n")
 
 

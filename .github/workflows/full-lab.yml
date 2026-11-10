@@ -1,0 +1,51 @@
+name: Full isolated lab acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  network:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y suricata nftables iproute2 python3-yaml
+      - name: Exercise real segmentation, IDS, IPS and isolation expiry
+        run: sudo env ESIEM_DISPOSABLE_LAB=1 python3 tools/network_acceptance.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: network-acceptance
+          path: |
+            reports/local-network-acceptance.json
+            reports/local-captured-eve.jsonl
+            runtime/network-acceptance/*engine.log
+          retention-days: 3
+  stack:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - run: sudo sysctl -w vm.max_map_count=262144
+      - run: python -m campus prepare
+      - run: docker compose -f runtime/soc/generate-indexer-certs.yml run --rm generator
+      - run: docker compose -p campussentinel -f runtime/soc/docker-compose.yml up -d
+      - run: python tools/test_full_stack.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-stack-acceptance
+          path: |
+            reports/local-stack-acceptance.json
+            reports/local-wazuh-integration.json
+            reports/local-live-correlation.json
+          retention-days: 3
+      - name: Stop disposable test stack
+        if: always()
+        run: |
+          docker rm -f esiem-test-agent || true
+          docker compose -p campussentinel -f runtime/soc/docker-compose.yml down --volumes || true

@@ -24,7 +24,7 @@ def main():
     base = yaml.safe_load(Path(args.base).read_text())
     overlay = yaml.safe_load(Path(__file__).with_name("suricata.yaml").read_text())
     result = merge(base, overlay)
-    Path(args.output).write_text(yaml.safe_dump(result, sort_keys=False))
+    Path(args.output).write_text("%YAML 1.1\n---\n" + yaml.safe_dump(result, sort_keys=False))
 
 
 if __name__ == "__main__":
