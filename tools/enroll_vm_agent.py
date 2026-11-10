@@ -30,8 +30,8 @@ def main():
     agent_id = selected.split()[0]
     for group in (["linux", "gateway"] if role == "gateway" else ["linux"]):
         manager("/var/ossec/bin/agent_groups -a -i " + shlex.quote(agent_id) + " -g " + group + " -q")
-    install_key = "sudo tee /var/ossec/etc/client.keys >/dev/null && sudo chown root:wazuh /var/ossec/etc/client.keys && sudo chmod 0640 /var/ossec/etc/client.keys && sudo systemctl enable --now wazuh-agent"
-    result = subprocess.run(connection(role) + [install_key], input=(selected + "\n").encode(), capture_output=True, timeout=45)
+    install_key = "sudo tee /var/ossec/etc/client.keys >/dev/null && sudo chown root:wazuh /var/ossec/etc/client.keys && sudo chmod 0640 /var/ossec/etc/client.keys && sudo systemctl enable wazuh-agent && sudo systemctl restart wazuh-agent"
+    result = subprocess.run(connection(role) + [install_key], input=(selected + "\n").encode(), capture_output=True, timeout=180)
     if result.returncode:
         raise RuntimeError("Agent key import/start failed; no key printed")
     end = time.monotonic() + 100

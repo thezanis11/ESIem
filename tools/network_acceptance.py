@@ -105,7 +105,8 @@ def main():
             (output / folder).mkdir()
         # veth offloading exposes partial checksums to packet capture. Disable
         # capture checksum validation only for this deterministic virtual lab.
-        common = ["suricata", "-c", config, "-S", ROOT / "infra/gateway/campus.rules", "-k", "none"]
+        common = ["suricata", "-c", config, "-S", ROOT / "infra/gateway/campus.rules", "-k", "none",
+                  "--set", "unix-command.enabled=no"]
         ids = launch(*common, "--runmode", "single", "-i", "ens7", "-l", output / "ids", namespace="gw", log="ids-engine.log")
         time.sleep(3)
         record("ids_service_running", ids.poll() is None)
