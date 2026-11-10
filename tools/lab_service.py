@@ -1,6 +1,6 @@
 """Tiny deterministic services/probes for isolated Linux network acceptance."""
 import argparse
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import socket
 import socketserver
@@ -16,13 +16,16 @@ def main():
     args = parser.parse_args()
     if args.mode == "http":
         class Handler(BaseHTTPRequestHandler):
+            def setup(self):
+                super().setup()
+                self.connection.settimeout(5)
             def do_GET(self):
                 body = b"ESIem isolated lab\n"
                 self.send_response(200)
                 self.send_header("Content-Length", str(len(body)))
                 self.end_headers()
                 self.wfile.write(body)
-        HTTPServer((args.address, args.port), Handler).serve_forever()
+        ThreadingHTTPServer((args.address, args.port), Handler).serve_forever()
     elif args.mode == "echo":
         class Handler(socketserver.BaseRequestHandler):
             def handle(self):
