@@ -23,6 +23,7 @@ def main():
     prefix = "esi" + str(os.getpid())
     namespaces, children = [], []
     results = []
+    completed = False
     def command(*args, namespace=None, check=True, input=None):
         argv = (["ip", "netns", "exec", prefix + namespace] if namespace else []) + list(map(str, args))
         result = subprocess.run(argv, input=input, capture_output=True, text=True, timeout=30)
@@ -104,8 +105,8 @@ def main():
             (output / folder).mkdir()
         # veth offloading exposes partial checksums to packet capture. Disable
         # capture checksum validation only for this deterministic virtual lab.
-        common = ["suricata", "-c", config, "-S", ROOT / "infra/gateway/campus.rules", "--runmode", "single", "-k", "none"]
-        ids = launch(*common, "-i", "ens7", "-l", output / "ids", namespace="gw", log="ids-engine.log")
+        common = ["suricata", "-c", config, "-S", ROOT / "infra/gateway/campus.rules", "-k", "none"]
+        ids = launch(*common, "--runmode", "single", "-i", "ens7", "-l", output / "ids", namespace="gw", log="ids-engine.log")
         time.sleep(3)
         record("ids_service_running", ids.poll() is None)
         record("ids_marker_passes", probe("student", "10.77.40.10", 80, "/campus-ids-test"))
@@ -146,8 +147,9 @@ def main():
         record("quarantine_expires_automatically", probe("student", "10.77.40.10", 80, "/"))
         captured = alerts("ids") + alerts("ips")
         (ROOT / "reports/local-captured-eve.jsonl").write_text("".join(json.dumps(e) + "\n" for e in captured))
+        completed = True
     finally:
-        (ROOT / "reports/local-network-acceptance.json").write_text(json.dumps({"real_packets": True,
+        (ROOT / "reports/local-network-acceptance.json").write_text(json.dumps({"real_packets": True, "completed": completed, "expected_tests": 19,
             "engine": "Linux namespaces + nftables + Suricata", "tests": results}, indent=2))
         for child, handle in children:
             if child.poll() is None:

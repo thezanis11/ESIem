@@ -21,6 +21,7 @@ def main():
     args = parser.parse_args()
     compose = ["docker", "compose", "-p", "campussentinel", "-f", "runtime/soc/docker-compose.yml"]
     results = []
+    completed = False
     def command(argv, check=True, input=None, timeout=45):
         result = subprocess.run(argv, input=input, text=True, capture_output=True, timeout=timeout)
         if check and result.returncode:
@@ -114,8 +115,9 @@ def main():
         if not args.manager_only:
             query = 'curl --silent --fail --cacert /etc/ssl/root-ca.pem -u "$INDEXER_USERNAME:$INDEXER_PASSWORD" "https://wazuh.indexer:9200/wazuh-alerts-*/_count?q=rule.id:110003"'
             wait_for("alert_indexed_and_searchable", lambda: json.loads(manager("bash", "-c", query).stdout).get("count", 0) >= 1, timeout=150)
+        completed = True
     finally:
-        (ROOT / "reports/local-stack-acceptance.json").write_text(json.dumps({"profile": "manager-only" if args.manager_only else "full-stack",
+        (ROOT / "reports/local-stack-acceptance.json").write_text(json.dumps({"profile": "manager-only" if args.manager_only else "full-stack", "completed": completed,
             "provenance": "real native Wazuh services and agent; labelled test logs", "tests": results}, indent=2))
 
 
