@@ -3,7 +3,8 @@
 set -euo pipefail
 ready=no
 for attempt in $(seq 1 90); do
-  if /var/ossec/bin/wazuh-control status | grep -q 'wazuh-analysisd is running'; then ready=yes; break; fi
+  status=$(/var/ossec/bin/wazuh-control status 2>/dev/null || true)
+  if [[ "$status" == *"wazuh-analysisd is running"* ]]; then ready=yes; break; fi
   sleep 2
 done
 [[ $ready == yes ]] || { echo 'Manager did not become ready for group setup.' >&2; exit 1; }
