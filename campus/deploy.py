@@ -72,7 +72,11 @@ def prepare(output, manager_bind="127.0.0.1"):
     api_file.write_text(yaml.safe_dump(api_config, sort_keys=False), encoding="utf-8")
     manager_file = destination / "config/wazuh_cluster/wazuh_manager.conf"
     tree = ET.fromstring("<root>" + manager_file.read_text() + "</root>")
-    tree.find(".//auth/disabled").text = "yes"  # Offline import, no open enrollment service.
+    # Keep the local registration socket alive so keys and Wazuh DB stay in sync.
+    # Disable only the remote TCP enrollment listener, not the whole daemon.
+    auth = tree.find(".//auth")
+    auth.find("disabled").text = "no"
+    ET.SubElement(auth, "remote_enrollment").text = "no"
     tree.find(".//auth/use_password").text = "yes"
     tree.find(".//cluster/key").text = passwords["cluster_key"]
     # Keep vulnerability feeds optional until egress and capacity have been approved.

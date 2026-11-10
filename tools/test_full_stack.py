@@ -68,6 +68,7 @@ def main():
         (endpoint / "client.keys").write_text(keys)
         (endpoint / "client.keys").chmod(0o600)
         first = keys.strip().splitlines()[-1].split()[0]
+        manager("/var/ossec/bin/agent_groups", "-a", "-i", first, "-g", "linux", "-q")
         configuration = '''<ossec_config><client><server><address>wazuh.manager</address><port>1514</port><protocol>tcp</protocol></server><enrollment><enabled>no</enabled></enrollment></client>
 <localfile><log_format>syslog</log_format><location>/var/log/esiem/auth.log</location></localfile>
 <localfile><log_format>json</log_format><location>/var/log/esiem/eve.json</location></localfile>
@@ -128,6 +129,7 @@ def main():
             "agent_state": ["docker", "inspect", "--format", "{{json .State}}", "esiem-test-agent"],
             "agent_log": ["docker", "exec", "esiem-test-agent", "tail", "-n", "80", "/var/ossec/logs/ossec.log"],
             "manager_log": compose + ["exec", "-T", "wazuh.manager", "tail", "-n", "80", "/var/ossec/logs/ossec.log"],
+            "agent_status": compose + ["exec", "-T", "wazuh.manager", "/var/ossec/bin/agent_control", "-l"],
         }
         secrets = list(json.loads((ROOT / "runtime/soc/credentials.json").read_text()).values())
         if "keys" in locals():

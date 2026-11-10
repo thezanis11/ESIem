@@ -35,7 +35,8 @@ class DeploymentTests(unittest.TestCase):
             api = yaml.safe_load((folder / "config/wazuh_dashboard/wazuh.yml").read_text())
             self.assertEqual(credentials["api"], next(iter(api["hosts"][0].values()))["password"])
             config = ET.fromstring("<root>" + (folder / "config/wazuh_cluster/wazuh_manager.conf").read_text() + "</root>")
-            self.assertEqual("yes", config.find(".//auth/disabled").text)
+            self.assertEqual("no", config.find(".//auth/disabled").text)
+            self.assertEqual("no", config.find(".//auth/remote_enrollment").text)
             self.assertNotIn("SecretPassword", (folder / "docker-compose.yml").read_text())
             with self.assertRaisesRegex(ValueError, "already exists"):
                 prepare(folder)
