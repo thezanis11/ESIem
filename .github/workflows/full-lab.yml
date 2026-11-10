@@ -51,6 +51,7 @@ jobs:
             reports/local-stack-acceptance.json
             reports/local-wazuh-integration.json
             reports/local-live-correlation.json
+            reports/local-agent-diagnostics.json
           retention-days: 3
       - name: Stop disposable test stack
         if: always()

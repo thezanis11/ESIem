@@ -23,7 +23,10 @@ def main():
     args = parser.parse_args()
     if bool(args.script) == bool(args.command):
         parser.error("Choose a script or command")
-    command = connection(args.role) + (["sudo bash -s"] if args.script else [args.command])
+    # Read the complete script before executing it, with child stdin closed.
+    # Otherwise docker/apt may consume subsequent bash script lines as input.
+    script_runner = "sudo python3 -c 'import subprocess,sys; sys.exit(subprocess.run([\"bash\",\"-c\",sys.stdin.read()], stdin=subprocess.DEVNULL).returncode)'"
+    command = connection(args.role) + ([script_runner] if args.script else [args.command])
     content = Path(args.script).read_text(encoding="utf-8") if args.script else None
     # Bytes preserve Linux LF endings when the controller runs on Windows.
     result = subprocess.run(command, input=content.encode("utf-8") if content is not None else None)

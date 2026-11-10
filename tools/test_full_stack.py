@@ -77,6 +77,12 @@ def main():
                  "-e", "WAZUH_MANAGER_SERVER=wazuh.manager", "-v", f"{endpoint / 'agent.conf'}:/wazuh-config-mount/etc/ossec.conf:ro",
                  "-v", f"{endpoint / 'client.keys'}:/wazuh-config-mount/etc/client.keys:ro", "-v", f"{endpoint}:/var/log/esiem",
                  "-v", f"{watched}:/etc/sudoers.d", "wazuh/wazuh-agent:4.14.10"], timeout=240)
+        # Agent images support the ossec.conf mount but do not consistently
+        # import an additional client.keys through that staging directory.
+        command(["docker", "cp", str(endpoint / "client.keys"), "esiem-test-agent:/var/ossec/etc/client.keys"])
+        command(["docker", "exec", "esiem-test-agent", "chown", "root:wazuh", "/var/ossec/etc/client.keys"])
+        command(["docker", "exec", "esiem-test-agent", "chmod", "640", "/var/ossec/etc/client.keys"])
+        command(["docker", "exec", "esiem-test-agent", "/var/ossec/bin/wazuh-control", "restart"])
         wait_for("agent_authenticated_online", lambda: "Active" in manager("/var/ossec/bin/agent_control", "-i", first).stdout, timeout=150)
         time.sleep(12)  # Allow the initial integrity scan to settle before changing a file.
         now = datetime.now(timezone.utc)
@@ -117,6 +123,25 @@ def main():
             wait_for("alert_indexed_and_searchable", lambda: json.loads(manager("bash", "-c", query).stdout).get("count", 0) >= 1, timeout=150)
         completed = True
     finally:
+        diagnostics = {}
+        probes = {
+            "agent_state": ["docker", "inspect", "--format", "{{json .State}}", "esiem-test-agent"],
+            "agent_log": ["docker", "exec", "esiem-test-agent", "tail", "-n", "80", "/var/ossec/logs/ossec.log"],
+            "manager_log": compose + ["exec", "-T", "wazuh.manager", "tail", "-n", "80", "/var/ossec/logs/ossec.log"],
+        }
+        secrets = list(json.loads((ROOT / "runtime/soc/credentials.json").read_text()).values())
+        if "keys" in locals():
+            secrets += keys.split()
+        for label, argv in probes.items():
+            try:
+                text = command(argv, check=False).stdout
+                for secret in secrets:
+                    if len(secret) >= 16:
+                        text = text.replace(secret, "[REDACTED]")
+                diagnostics[label] = text
+            except Exception as error:
+                diagnostics[label] = type(error).__name__
+        (ROOT / "reports/local-agent-diagnostics.json").write_text(json.dumps(diagnostics, indent=2))
         (ROOT / "reports/local-stack-acceptance.json").write_text(json.dumps({"profile": "manager-only" if args.manager_only else "full-stack", "completed": completed,
             "provenance": "real native Wazuh services and agent; labelled test logs", "tests": results}, indent=2))
 
