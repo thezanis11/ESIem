@@ -109,7 +109,7 @@ Les configurations sont montées par le chemin de personnalisation officiel `/wa
 
 Une automatisation Ansible facultative est fournie dans `infra/ansible/`. Elle exige un poste d’administration avec Ansible, les clés SSH des VM et un inventaire adapté. Elle copie uniquement les sources nécessaires et installe les rôles Ubuntu ; elle ne crée pas les VM, ne modifie pas leur réseau et n’importe pas les secrets des agents. Le playbook n’a pas encore été exécuté sur un parc de VM.
 
-Pour Windows : installer l’agent officiel compatible, importer une clé unique, affecter `windows`, activer la stratégie d’audit adaptée. Sysmon est facultatif et doit être installé séparément depuis Microsoft ; sa présence n’est pas simulée par le fichier `agent.conf`. La corrélation Campus Sentinel de cette version cible SSH/Linux ; les alertes Windows restent consultables dans Wazuh.
+Pour Windows : installer l’agent officiel compatible, importer une clé unique, affecter `windows`, activer la stratégie d’audit adaptée. Sysmon est facultatif et doit être installé séparément depuis Microsoft ; sa présence n’est pas simulée par le fichier `agent.conf`. La corrélation ESIem de cette version cible SSH/Linux ; les alertes Windows restent consultables dans Wazuh.
 
 ## 5. Préparer les deux serveurs
 

@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Campus Sentinel — Wazuh university lab")
+    parser = argparse.ArgumentParser(description="ESIem — Wazuh university lab")
     commands = parser.add_subparsers(dest="command", required=True)
     prepare = commands.add_parser("prepare", help="Generate a fresh Wazuh deployment, never overwrite secrets")
     prepare.add_argument("--output", default="runtime/soc")

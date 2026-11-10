@@ -1,6 +1,6 @@
 # Attribution et licences
 
-Campus Sentinel est une adaptation de laboratoire, sans affiliation officielle à Wazuh, à OISF ou à l’ESI.
+ESIem est une adaptation de laboratoire, sans affiliation officielle à Wazuh, à OISF ou à l’ESI.
 
 - Les fichiers sous `vendor/wazuh-docker/` proviennent de [Wazuh Docker v4.14.10](https://github.com/wazuh/wazuh-docker/tree/v4.14.10). Ils sont conservés avec leur licence GPLv2, leurs notices et un manifeste des URL/empreintes. Les copies modifiées ne sont produites que dans `runtime/`, par `campus/deploy.py`.
 - Wazuh manager, indexer et dashboard restent les produits de leurs auteurs respectifs. Les images ne sont pas redistribuées dans ce dépôt. Les licences et notices des composants qu’elles contiennent restent applicables.

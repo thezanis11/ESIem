@@ -1,5 +1,5 @@
 [Unit]
-Description=Periodic Campus Sentinel snapshot ingestion
+Description=Periodic ESIem snapshot ingestion
 
 [Timer]
 OnBootSec=1min

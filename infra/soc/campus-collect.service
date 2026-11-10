@@ -1,5 +1,5 @@
 [Unit]
-Description=Collect Wazuh alerts into Campus Sentinel and render the incident report
+Description=Collect Wazuh alerts into ESIem and render the incident report
 After=docker.service
 Requires=docker.service
 

@@ -1,4 +1,4 @@
-# Campus Sentinel
+# ESIem
 
 **Adaptation de Wazuh à un réseau universitaire segmenté : collecte hôte et réseau, corrélation d’alertes, priorisation et réponse temporaire encadrée.**
 
@@ -21,7 +21,7 @@ flowchart LR
   FW --- SERV["Serveurs : fichiers SSH/SFTP\n10.77.50.10"]
   FW --- MGMT["Supervision / administration\n10.77.10.0/24"]
   MGMT --- SOC["Wazuh manager + indexer + dashboard\n10.77.10.10"]
-  SOC --- CORR["Corrélation Campus Sentinel\nSQLite + audit + rapport hors ligne"]
+  SOC --- CORR["Corrélation ESIem\nSQLite + audit + rapport hors ligne"]
   STUD -. "Agent TCP 1514" .-> SOC
   STAFF -. "Agent TCP 1514" .-> SOC
   DMZ -. "Agent TCP 1514" .-> SOC
