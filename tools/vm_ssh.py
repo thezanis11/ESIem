@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import subprocess
+import shlex
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -25,7 +26,12 @@ def main():
         parser.error("Choose a script or command")
     # Read the complete script before executing it, with child stdin closed.
     # Otherwise docker/apt may consume subsequent bash script lines as input.
-    script_runner = "sudo python3 -c 'import subprocess,sys; sys.exit(subprocess.run([\"bash\",\"-c\",sys.stdin.read()], stdin=subprocess.DEVNULL).returncode)'"
+    # Mirror the script at its project-relative guest path. Executing a real file
+    # preserves $0/BASH_SOURCE for installers that resolve sibling config files.
+    if args.script:
+        relative = Path(args.script).resolve().relative_to(ROOT)
+        remote_path = "/opt/campus-siem/" + relative.as_posix()
+        script_runner = "sudo python3 -c 'import pathlib,subprocess,sys; p=pathlib.Path(sys.argv[1]); p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(sys.stdin.buffer.read()); sys.exit(subprocess.run([\"bash\",str(p)],stdin=subprocess.DEVNULL).returncode)' " + shlex.quote(remote_path)
     command = connection(args.role) + ([script_runner] if args.script else [args.command])
     content = Path(args.script).read_text(encoding="utf-8") if args.script else None
     # Bytes preserve Linux LF endings when the controller runs on Windows.

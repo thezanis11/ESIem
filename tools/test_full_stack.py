@@ -5,6 +5,7 @@ The endpoint runs a genuine agent; no university credentials or live attacks use
 import argparse
 from datetime import datetime, timezone
 import json
+import hashlib
 from pathlib import Path
 import subprocess
 import sys
@@ -50,6 +51,8 @@ def main():
         wait_for("manager_analysis_running", lambda: "wazuh-analysisd is running" in manager("/var/ossec/bin/wazuh-control", "status", check=False).stdout)
         command([sys.executable, "tools/test_wazuh.py"])
         record("native_rules_and_decoders", True)
+        closed = manager("bash", "-c", "if (echo > /dev/tcp/127.0.0.1/1515) 2>/dev/null; then exit 1; else exit 0; fi", check=False)
+        record("remote_enrollment_listener_closed", closed.returncode == 0)
         if not args.manager_only:
             index_command = 'curl --silent --fail --cacert /etc/ssl/root-ca.pem -u "$INDEXER_USERNAME:$INDEXER_PASSWORD" https://wazuh.indexer:9200/_cluster/health'
             wait_for("indexer_authenticated_tls", lambda: json.loads(manager("bash", "-c", index_command).stdout).get("status") in ("green", "yellow"))
@@ -95,6 +98,14 @@ def main():
                  "alert": {"signature_id": 9900002, "signature": "ESIem labelled transport test", "severity": 3, "action": "blocked"}}
         with (endpoint / "eve.json").open("a") as log:
             log.write(json.dumps(event) + "\n")
+            captured = ROOT / "tests/captured-eve.jsonl"
+            provenance = json.loads((ROOT / "tests/captured-eve.provenance.json").read_text())
+            if hashlib.sha256(captured.read_bytes()).hexdigest() != provenance["sha256"]:
+                raise ValueError("Captured EVE fixture checksum mismatch")
+            for line in captured.read_text().splitlines():
+                replayed = json.loads(line)
+                replayed["esiem_replay"] = "captured_network"
+                log.write(json.dumps(replayed) + "\n")
         with (watched / "esiem_lab").open("a") as target:
             target.write("# ESIem changed comment; no privileges granted\n")
         def read_alerts():
@@ -111,17 +122,21 @@ def main():
         wait_for("ssh_events_received", lambda: sum("authentication_failed" in a.get("rule", {}).get("groups", []) for a in read_alerts()) >= 5, timeout=100)
         wait_for("eve_event_decoded", lambda: any(str(a.get("rule", {}).get("id")) == "110003" for a in read_alerts()), timeout=100)
         wait_for("integrity_event_received", lambda: any(str(a.get("rule", {}).get("id")) == "110010" for a in read_alerts()), timeout=100)
+        wait_for("captured_packet_events_received", lambda: any(a.get("data", {}).get("esiem_replay") == "captured_network" for a in read_alerts()), timeout=100)
         engine = Engine(":memory:", json.loads((ROOT / "config/assets.json").read_text()))
         for alert in read_alerts():
             engine.ingest(alert)
         detections = {i["detection"] for i in engine.incidents()}
         record("native_alerts_correlated", {"ssh_guessing", "network_alert", "network_host_corroboration", "sensitive_file_change"}.issubset(detections), observed=sorted(detections))
+        record("captured_packet_asset_resolved", any(i["detection"] == "network_alert" and i["asset"] == "portal" for i in engine.incidents()))
         (ROOT / "reports/local-live-correlation.json").write_text(json.dumps({"provenance": "real agent transport; synthetic test log injection and real file modification",
             "incidents": engine.incidents(), "audit": engine.verify_audit()}, indent=2))
         engine.close()
         if not args.manager_only:
             query = 'curl --silent --fail --cacert /etc/ssl/root-ca.pem -u "$INDEXER_USERNAME:$INDEXER_PASSWORD" "https://wazuh.indexer:9200/wazuh-alerts-*/_count?q=rule.id:110003"'
             wait_for("alert_indexed_and_searchable", lambda: json.loads(manager("bash", "-c", query).stdout).get("count", 0) >= 1, timeout=150)
+            captured_query = 'curl --silent --fail --cacert /etc/ssl/root-ca.pem -u "$INDEXER_USERNAME:$INDEXER_PASSWORD" "https://wazuh.indexer:9200/wazuh-alerts-*/_count?q=data.esiem_replay:captured_network"'
+            wait_for("captured_packets_indexed", lambda: json.loads(manager("bash", "-c", captured_query).stdout).get("count", 0) >= 1, timeout=150)
         completed = True
     finally:
         diagnostics = {}

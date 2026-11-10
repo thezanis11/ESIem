@@ -49,6 +49,11 @@ def prepare(output, manager_bind="127.0.0.1"):
         component["environment"]["INDEXER_PASSWORD"] = passwords["admin"]
         component["environment"]["API_PASSWORD"] = passwords["api"]
     dashboard["environment"]["DASHBOARD_PASSWORD"] = passwords["dashboard"]
+    permissions = destination / "config/campus/fix-group-permissions.sh"
+    permissions.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / "infra/soc/fix-group-permissions.sh", permissions)
+    manager["volumes"].append("./config/campus/fix-group-permissions.sh:/opt/esiem/fix-group-permissions.sh:ro")
+    manager["post_start"] = [{"command": ["bash", "/opt/esiem/fix-group-permissions.sh"], "user": "root"}]
     for source in (ROOT / "wazuh/rules").glob("*.xml"):
         target = destination / "config/campus/rules" / source.name
         target.parent.mkdir(parents=True, exist_ok=True)

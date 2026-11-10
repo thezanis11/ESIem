@@ -1,0 +1,7 @@
+{
+  "type": "real packet capture of harmless HTTP acceptance markers",
+  "source": "https://github.com/thezanis11/ESIem/actions/runs/42919748155",
+  "sha256": "f65fe7fc4a55a9295dffd467099c9fff4a1262dade25ed1e67dc713708a2f0d5",
+  "events": 3,
+  "addresses": "isolated RFC1918 lab only; no university traffic"
+}

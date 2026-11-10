@@ -4,25 +4,25 @@
     <if_sid>86601</if_sid>
     <field name="alert.severity">^1$</field>
     <description>Campus: high-priority Suricata signature $(alert.signature)</description>
-    <group>campus_network,</group>
+    <group>ids,suricata,campus_network,</group>
   </rule>
   <rule id="110002" level="8">
     <if_sid>86601</if_sid>
     <field name="alert.signature_id">^9900001$</field>
     <description>Campus: harmless IDS acceptance-test marker</description>
-    <group>campus_test,</group>
+    <group>ids,suricata,campus_test,</group>
   </rule>
   <rule id="110003" level="10">
     <if_sid>86601</if_sid>
     <field name="alert.signature_id">^9900002$</field>
     <description>Campus: harmless IPS acceptance-test marker</description>
-    <group>campus_test,</group>
+    <group>ids,suricata,campus_test,</group>
   </rule>
   <rule id="110010" level="10">
     <if_group>syscheck</if_group>
     <field name="file" type="pcre2">^/etc/(?:passwd|shadow|sudoers|ssh/sshd_config|sudoers\.d/[^/]+)$</field>
     <description>Campus: integrity change on a sensitive Linux configuration file</description>
     <mitre><id>T1098</id></mitre>
-    <group>campus_integrity,</group>
+    <group>syscheck,campus_integrity,</group>
   </rule>
 </group>
