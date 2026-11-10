@@ -34,8 +34,9 @@ def make_iso(path, files):
 def password_hash(password):
     command = ["openssl", "passwd", "-6", "-stdin"]
     if os.name == "nt":
-        command = ["wsl", "-d", "Ubuntu", "--", *command]
-    result = subprocess.run(command, input=password + "\n", text=True, capture_output=True, check=True)
+        native = Path(r"C:\Program Files\Git\usr\bin\openssl.exe")
+        command = [str(native), *command[1:]] if native.exists() else ["wsl", "-d", "Ubuntu", "--", *command]
+    result = subprocess.run(command, input=password + "\n", text=True, capture_output=True, check=True, timeout=30)
     result = result.stdout.strip()
     if not result.startswith("$6$"):
         raise ValueError("Expected SHA-512 crypt console password hash")
@@ -109,8 +110,13 @@ def main():
                         "network-config": yaml.safe_dump(network, sort_keys=False)})
         os_disk = storage / name / (name + "-ubuntu.vdi")
         if not os_disk.exists():
-            run(args.vbox, "clonemedium", "disk", image, os_disk, "--format", "VDI", timeout=900)
-            run(args.vbox, "modifymedium", "disk", os_disk, "--resize", machine["disk_GB"] * 1024)
+            # Convert the stream-optimized VMDK only once. Reopening its zero UUID
+            # can conflict with VirtualBox's generated media-registry UUID.
+            base_disk = storage / "images/ubuntu-base.vdi"
+            source = base_disk if base_disk.exists() else image
+            run(args.vbox, "clonemedium", "disk", source, os_disk, "--format", "VDI", timeout=900)
+            requested = max(machine["disk_GB"], 16 if base_disk.exists() else 0)
+            run(args.vbox, "modifymedium", "disk", os_disk, "--resize", requested * 1024)
         run(args.vbox, "storageattach", name, "--storagectl", "SATA", "--port", "0", "--device", "0", "--type", "hdd", "--medium", os_disk)
         run(args.vbox, "storageattach", name, "--storagectl", "SATA", "--port", "1", "--device", "0", "--type", "dvddrive", "--medium", seed)
         run(args.vbox, "modifyvm", name, "--firmware", "efi", "--boot1", "disk", "--boot2", "dvd")
