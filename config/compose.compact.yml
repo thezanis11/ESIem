@@ -1,0 +1,13 @@
+# Experimental small-lab profile; the standard vendor minimum remains 8 GiB.
+# Merge AFTER the generated runtime/soc/docker-compose.yml.
+services:
+  wazuh.manager:
+    mem_limit: 1024m
+  wazuh.indexer:
+    mem_limit: 1536m
+    environment:
+      OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+  wazuh.dashboard:
+    mem_limit: 768m
+    environment:
+      NODE_OPTIONS: --max-old-space-size=256

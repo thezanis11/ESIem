@@ -16,9 +16,17 @@ sys.path.insert(0, str(ROOT))
 from campus.engine import Engine
 
 
+def select_agent_key(contents, name):
+    matches = [line for line in contents.splitlines() if len(line.split()) == 4 and line.split()[1] == name]
+    if len(matches) != 1:
+        raise ValueError("Expected exactly one key for the test endpoint")
+    return matches[0] + "\n"
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--manager-only", action="store_true")
+    parser.add_argument("--endpoint-memory", choices=["256m", "512m"])
     args = parser.parse_args()
     compose = ["docker", "compose", "-p", "campussentinel", "-f", "runtime/soc/docker-compose.yml"]
     results = []
@@ -67,7 +75,7 @@ def main():
         (watched / "esiem_lab").write_text("# ESIem baseline; no privileges granted\n")
         manager("/var/ossec/bin/manage_agents", "-a", "any", "-n", "files")
         # A fresh disposable manager owns this one test endpoint. Keys are never printed.
-        keys = manager("cat", "/var/ossec/etc/client.keys").stdout
+        keys = select_agent_key(manager("cat", "/var/ossec/etc/client.keys").stdout, "files")
         (endpoint / "client.keys").write_text(keys)
         (endpoint / "client.keys").chmod(0o600)
         first = keys.strip().splitlines()[-1].split()[0]
@@ -77,7 +85,8 @@ def main():
 <localfile><log_format>json</log_format><location>/var/log/esiem/eve.json</location></localfile>
 <syscheck><disabled>no</disabled><frequency>60</frequency><scan_on_start>yes</scan_on_start><directories check_all="yes" realtime="yes" report_changes="no">/etc/sudoers.d</directories></syscheck></ossec_config>'''
         (endpoint / "agent.conf").write_text(configuration)
-        command(["docker", "run", "-d", "--name", "esiem-test-agent", "--hostname", "files", "--network", "campussentinel_soc",
+        endpoint_limits = ["--memory", args.endpoint_memory] if args.endpoint_memory else []
+        command(["docker", "run", "-d", *endpoint_limits, "--name", "esiem-test-agent", "--hostname", "files", "--network", "campussentinel_soc",
                  "-e", "WAZUH_MANAGER_SERVER=wazuh.manager", "-v", f"{endpoint / 'agent.conf'}:/wazuh-config-mount/etc/ossec.conf:ro",
                  "-v", f"{endpoint / 'client.keys'}:/wazuh-config-mount/etc/client.keys:ro", "-v", f"{endpoint}:/var/log/esiem",
                  "-v", f"{watched}:/etc/sudoers.d", "wazuh/wazuh-agent:4.14.10"], timeout=240)
