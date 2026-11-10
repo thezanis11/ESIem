@@ -1,0 +1,6 @@
+-w /etc/passwd -p wa -k campus_accounts
+-w /etc/group -p wa -k campus_accounts
+-w /etc/shadow -p wa -k campus_accounts
+-w /etc/sudoers -p wa -k campus_privilege
+-w /etc/sudoers.d/ -p wa -k campus_privilege
+-w /etc/ssh/sshd_config -p wa -k campus_ssh_config

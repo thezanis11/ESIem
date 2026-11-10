@@ -1,0 +1,22 @@
+{
+  "reconstructed": true,
+  "base_os": "Ubuntu Server 24.04 LTS",
+  "gateway": {
+    "wan": {"interface": "ens3", "address": "192.0.2.2/24", "gateway": "192.0.2.1"},
+    "management": {"interface": "ens4", "address": "10.77.10.1/24"},
+    "students": {"interface": "ens5", "address": "10.77.20.1/24"},
+    "staff": {"interface": "ens6", "address": "10.77.30.1/24"},
+    "dmz": {"interface": "ens7", "address": "10.77.40.1/24"},
+    "servers": {"interface": "ens8", "address": "10.77.50.1/24"}
+  },
+  "machines": {
+    "soc": {"ip": "10.77.10.10/24", "gateway": "10.77.10.1", "interface": "ens3", "vcpus": 4, "ram_GiB": 8, "disk_GB": 60},
+    "admin": {"ip": "10.77.10.50/24", "gateway": "10.77.10.1", "interface": "ens3", "vcpus": 2, "ram_GiB": 2, "disk_GB": 16},
+    "student01": {"ip": "10.77.20.10/24", "gateway": "10.77.20.1", "interface": "ens3", "vcpus": 1, "ram_GiB": 1, "disk_GB": 12},
+    "staff01": {"ip": "10.77.30.10/24", "gateway": "10.77.30.1", "interface": "ens3", "vcpus": 1, "ram_GiB": 1, "disk_GB": 12},
+    "portal": {"ip": "10.77.40.10/24", "gateway": "10.77.40.1", "interface": "ens3", "vcpus": 1, "ram_GiB": 1, "disk_GB": 16},
+    "files": {"ip": "10.77.50.10/24", "gateway": "10.77.50.1", "interface": "ens3", "vcpus": 1, "ram_GiB": 1, "disk_GB": 16}
+  },
+  "gateway_resources": {"vcpus": 2, "ram_GiB": 2, "disk_GB": 16},
+  "notes": ["192.0.2.0/24 is a documentation-only simulated external network, not the real Internet.", "Physical host recommendation: at least 24 GiB RAM and 180 GB free, preferably 32 GiB RAM.", "Verify hypervisor NIC names: the supplied names are assumptions, not discovered hardware."]
+}

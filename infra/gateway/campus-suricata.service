@@ -1,0 +1,20 @@
+[Unit]
+Description=Campus laboratory Suricata NFQUEUE sensor
+After=network-online.target
+Wants=network-online.target
+Before=nftables.service
+
+[Service]
+Type=simple
+Environment="CAPTURE_ARGS=-i ens7"
+EnvironmentFile=-/etc/default/campus-suricata
+ExecStart=/usr/bin/suricata -c /etc/suricata/campus.yaml $CAPTURE_ARGS
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/log/suricata /run
+
+[Install]
+WantedBy=multi-user.target

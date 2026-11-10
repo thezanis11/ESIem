@@ -1,0 +1,40 @@
+---
+# Optional Ubuntu VM provisioning AFTER network review and with package access.
+# Does not apply Netplan, load nftables, activate IPS or import enrollment secrets.
+- name: Prepare university lab endpoints
+  hosts: endpoints
+  become: true
+  tasks:
+    - name: Require dedicated Ubuntu 24.04 VMs
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == 'Ubuntu'
+          - ansible_distribution_version == '24.04'
+    - name: Create project directory
+      ansible.builtin.file:
+        path: /opt/campus-siem
+        state: directory
+        mode: '0755'
+    - name: Copy only deployment sources, never runtime secrets
+      ansible.builtin.copy:
+        src: '{{ item.source }}'
+        dest: '/opt/campus-siem/{{ item.target }}'
+        mode: preserve
+      loop:
+        - {source: '../agents', target: 'infra/'}
+        - {source: '../gateway', target: 'infra/'}
+        - {source: '../portal', target: 'infra/'}
+        - {source: '../../campus', target: ''}
+        - {source: '../../config', target: ''}
+    - name: Install pinned Wazuh agent and audit collection
+      ansible.builtin.command: bash /opt/campus-siem/infra/agents/install-agent.sh
+      args:
+        creates: /var/ossec/bin/wazuh-agentd
+    - name: Configure portal VM
+      ansible.builtin.command: bash /opt/campus-siem/infra/portal/install-portal.sh
+      when: inventory_hostname in groups['portal']
+      changed_when: true
+    - name: Install and validate gateway files without applying them
+      ansible.builtin.command: bash /opt/campus-siem/infra/gateway/install-gateway.sh
+      when: inventory_hostname in groups['gateway']
+      changed_when: true

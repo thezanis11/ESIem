@@ -1,0 +1,7 @@
+{
+  "execute": false,
+  "allowed_subnets": ["10.77.20.0/24"],
+  "protected_addresses": ["10.77.20.1", "10.77.10.1", "10.77.10.10", "10.77.10.50"],
+  "allowed_rule_ids": ["110001"],
+  "timeout_seconds": 300
+}

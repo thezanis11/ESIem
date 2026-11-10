@@ -1,0 +1,53 @@
+#!/usr/sbin/nft -f
+# Dedicated lab gateway only. Interface names must match inventory before apply.
+# This file creates only its own table; it never flushes unrelated firewall tables.
+table inet campus {
+  define wan = "ens3"
+  define mgmt = "ens4"
+  define students = "ens5"
+  define staff = "ens6"
+  define dmz = "ens7"
+  define servers = "ens8"
+  set student_net { type ipv4_addr; flags interval; elements = { 10.77.20.0/24 }; }
+  set staff_net { type ipv4_addr; flags interval; elements = { 10.77.30.0/24 }; }
+  set quarantine_v4 { type ipv4_addr; flags timeout; timeout 5m; size 256; }
+  chain input {
+    type filter hook input priority 0; policy drop;
+    iifname "lo" accept
+    ct state invalid drop
+    ct state established,related accept
+    iifname $mgmt ip saddr 10.77.10.0/24 tcp dport 22 accept
+    ip protocol icmp icmp type { echo-request, destination-unreachable, time-exceeded } accept
+    limit rate 5/second burst 10 packets log prefix "CAMPUS_INPUT_DROP " drop
+  }
+  chain forward {
+    type filter hook forward priority 0; policy drop;
+    # Anti-spoofing before connection tracking bypasses new-flow rules.
+    iifname $students ip saddr != 10.77.20.0/24 drop
+    iifname $staff ip saddr != 10.77.30.0/24 drop
+    iifname $dmz ip saddr != 10.77.40.0/24 drop
+    iifname $servers ip saddr != 10.77.50.0/24 drop
+    iifname $mgmt ip saddr != 10.77.10.0/24 drop
+    iifname $wan ip saddr 10.77.0.0/16 drop
+    # Preserve endpoint telemetry during temporary isolation.
+    iifname { $students, $staff, $dmz, $servers } ip daddr 10.77.10.10 tcp dport 1514 accept
+    iifname $mgmt ip saddr 10.77.10.10 tcp sport 1514 ct state established accept
+    ip saddr @quarantine_v4 drop
+    ip daddr @quarantine_v4 drop
+    ct state invalid drop
+    ct state established,related accept
+    iifname { $students, $staff } ip daddr 10.77.40.10 tcp dport { 80, 443 } accept
+    iifname $staff ip daddr 10.77.50.10 tcp dport 22 accept
+    iifname $mgmt ip saddr 10.77.10.50 ip daddr 10.77.0.0/16 tcp dport { 22, 80, 443 } accept
+    # Agents can reach the manager, not the indexer or its API.
+    iifname { $students, $staff, $dmz, $servers } ip daddr 10.77.10.10 tcp dport 1514 accept
+    # No external access by default. Temporary updates use a separate reviewed rule.
+    limit rate 5/second burst 10 packets log prefix "CAMPUS_FORWARD_DROP " drop
+  }
+  chain ips {
+    # Runs AFTER the forward firewall. Initially disabled; add queue rule only after acceptance.
+    type filter hook forward priority 10; policy accept;
+    # queue num 0
+  }
+  chain output { type filter hook output priority 0; policy accept; }
+}

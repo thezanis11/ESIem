@@ -1,0 +1,12 @@
+{
+  "campaign": null,
+  "host_inventory": null,
+  "wazuh_native": {"status": "not_run", "evidence": []},
+  "agent_collection": {"status": "not_run", "evidence": []},
+  "segmentation": {"status": "not_run", "evidence": []},
+  "ids": {"status": "not_run", "evidence": []},
+  "ips": {"status": "not_run", "evidence": []},
+  "response_simulation": {"status": "not_run", "evidence": []},
+  "response_execution": {"status": "not_run", "evidence": []},
+  "restore": {"status": "not_run", "evidence": []}
+}

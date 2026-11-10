@@ -1,0 +1,11 @@
+.venv/
+.tools/
+__pycache__/
+runtime/
+*.db
+*.db-*
+*.key
+*.pem
+.env
+reports/local-*
+.cache/

@@ -1,0 +1,30 @@
+name: Campus checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -v
+      - run: python tools/check_config.py
+      - run: python tools/evaluate.py
+      - run: python -m campus prepare
+      - run: docker compose -p campussentinel -f runtime/soc/docker-compose.yml config --quiet
+      - run: bash -n infra/gateway/install-gateway.sh && bash -n infra/agents/install-agent.sh && bash -n infra/portal/install-portal.sh
+  native-sensors:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y suricata nftables python3-yaml
+      - run: sudo nft --check --file infra/gateway/campus.nft
+      - run: python3 infra/gateway/configure_suricata.py --base /etc/suricata/suricata.yaml --output /tmp/campus-suricata.yaml
+      - run: sudo suricata -T -c /tmp/campus-suricata.yaml -S infra/gateway/campus.rules

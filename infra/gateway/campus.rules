@@ -1,0 +1,2 @@
+alert http any any -> 10.77.40.10 80 (msg:"CAMPUS harmless IDS acceptance marker"; flow:established,to_server; http.uri; content:"/campus-ids-test"; sid:9900001; rev:1;)
+drop http any any -> 10.77.40.10 80 (msg:"CAMPUS harmless IPS acceptance marker"; flow:established,to_server; http.uri; content:"/campus-ips-test"; sid:9900002; rev:1;)

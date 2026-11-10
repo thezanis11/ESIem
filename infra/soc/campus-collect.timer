@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic Campus Sentinel snapshot ingestion
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=30s
+RandomizedDelaySec=3s
+Unit=campus-collect.service
+
+[Install]
+WantedBy=timers.target

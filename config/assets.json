@@ -1,0 +1,7 @@
+{
+  "portal": {"ip": "10.77.40.10", "zone": "dmz", "criticality": 3},
+  "files": {"ip": "10.77.50.10", "zone": "servers", "criticality": 4},
+  "gateway": {"ip": "10.77.10.1", "zone": "management", "criticality": 4},
+  "student01": {"ip": "10.77.20.10", "zone": "students", "criticality": 1},
+  "staff01": {"ip": "10.77.30.10", "zone": "staff", "criticality": 2}
+}

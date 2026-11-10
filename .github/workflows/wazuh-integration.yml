@@ -1,0 +1,37 @@
+name: Native Wazuh integration
+# Heavy job is opt-in, not a claim that it has already run.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m campus prepare
+      - run: docker compose -f runtime/soc/generate-indexer-certs.yml run --rm generator
+      - name: Start manager only, with no external sensor enrollment
+        run: |
+          docker compose -p campussentinel -f runtime/soc/docker-compose.yml up -d --no-deps wazuh.manager
+          for n in $(seq 1 90); do
+            if docker compose -p campussentinel -f runtime/soc/docker-compose.yml exec -T wazuh.manager /var/ossec/bin/wazuh-control status | grep -q 'wazuh-analysisd is running'; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - name: Test via deployed service
+        run: python tools/test_wazuh.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-wazuh-result
+          path: reports/local-wazuh-integration.json
+          if-no-files-found: ignore
+      - name: Stop temporary container
+        if: always()
+        run: docker compose -p campussentinel -f runtime/soc/docker-compose.yml down --volumes || true

@@ -1,0 +1,3 @@
+* text=auto eol=lf
+# Preserve official source bytes: the SHA-256 manifest verifies those exact bytes.
+vendor/** -text

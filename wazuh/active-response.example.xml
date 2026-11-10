@@ -1,0 +1,8 @@
+<!-- Optional manager additions AFTER the gateway response acceptance tests.
+     Replace 001 with the actual gateway agent ID. Never use location=all. -->
+<ossec_config>
+  <command><name>campus-isolate</name><executable>campus-response</executable><timeout_allowed>no</timeout_allowed></command>
+  <active-response><disabled>yes</disabled><command>campus-isolate</command>
+    <location>defined-agent</location><agent_id>001</agent_id><rules_id>110001</rules_id>
+  </active-response>
+</ossec_config>

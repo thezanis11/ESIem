@@ -1,0 +1,173 @@
+{
+  "type": "synthetic regression only",
+  "cases": [
+    {
+      "case": "single_typo",
+      "events": 1,
+      "expected": [],
+      "observed": [],
+      "passed": true
+    },
+    {
+      "case": "threshold_four",
+      "events": 4,
+      "expected": [],
+      "observed": [],
+      "passed": true
+    },
+    {
+      "case": "password_guessing",
+      "events": 5,
+      "expected": [
+        "ssh_guessing"
+      ],
+      "observed": [
+        "ssh_guessing"
+      ],
+      "passed": true
+    },
+    {
+      "case": "successful_login_after_guessing",
+      "events": 6,
+      "expected": [
+        "login_after_failures",
+        "ssh_guessing"
+      ],
+      "observed": [
+        "login_after_failures",
+        "ssh_guessing"
+      ],
+      "passed": true
+    },
+    {
+      "case": "different_account",
+      "events": 6,
+      "expected": [
+        "ssh_guessing"
+      ],
+      "observed": [
+        "ssh_guessing"
+      ],
+      "passed": true
+    },
+    {
+      "case": "different_host",
+      "events": 6,
+      "expected": [
+        "ssh_guessing"
+      ],
+      "observed": [
+        "ssh_guessing"
+      ],
+      "passed": true
+    },
+    {
+      "case": "outside_time_window",
+      "events": 5,
+      "expected": [],
+      "observed": [],
+      "passed": true
+    },
+    {
+      "case": "sensitive_file",
+      "events": 1,
+      "expected": [
+        "sensitive_file_change"
+      ],
+      "observed": [
+        "sensitive_file_change"
+      ],
+      "passed": true
+    },
+    {
+      "case": "regular_file",
+      "events": 1,
+      "expected": [],
+      "observed": [],
+      "passed": true
+    },
+    {
+      "case": "host_network_agreement",
+      "events": 2,
+      "expected": [
+        "network_alert",
+        "network_host_corroboration"
+      ],
+      "observed": [
+        "network_alert",
+        "network_host_corroboration"
+      ],
+      "passed": true
+    },
+    {
+      "case": "unrelated_network_source",
+      "events": 2,
+      "expected": [
+        "network_alert"
+      ],
+      "observed": [
+        "network_alert"
+      ],
+      "passed": true
+    },
+    {
+      "case": "network_different_asset",
+      "events": 2,
+      "expected": [
+        "network_alert"
+      ],
+      "observed": [
+        "network_alert"
+      ],
+      "passed": true
+    },
+    {
+      "case": "login_then_sensitive_file",
+      "events": 2,
+      "expected": [
+        "login_then_integrity",
+        "sensitive_file_change"
+      ],
+      "observed": [
+        "login_then_integrity",
+        "sensitive_file_change"
+      ],
+      "passed": true
+    },
+    {
+      "case": "unrelated_login_time",
+      "events": 2,
+      "expected": [
+        "sensitive_file_change"
+      ],
+      "observed": [
+        "sensitive_file_change"
+      ],
+      "passed": true
+    },
+    {
+      "case": "delayed_authentication",
+      "events": 2,
+      "expected": [
+        "network_alert",
+        "network_host_corroboration"
+      ],
+      "observed": [
+        "network_alert",
+        "network_host_corroboration"
+      ],
+      "passed": true
+    },
+    {
+      "case": "normal_activity",
+      "events": 10,
+      "expected": [],
+      "observed": [],
+      "passed": true
+    }
+  ],
+  "passed": 16,
+  "total": 16,
+  "real_wazuh_integration_executed": false,
+  "full_lab_executed": false
+}

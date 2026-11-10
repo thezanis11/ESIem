@@ -1,0 +1,20 @@
+[Unit]
+Description=Collect Wazuh alerts into Campus Sentinel and render the incident report
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/campus-siem
+ExecStart=/opt/campus-siem/.venv/bin/python tools/collect_alerts.py
+ExecStart=/opt/campus-siem/.venv/bin/python -m campus report
+TimeoutStartSec=120
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/campus-siem/runtime
+MemoryMax=512M
+CPUQuota=50%

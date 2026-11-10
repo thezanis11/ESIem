@@ -1,0 +1,38 @@
+{
+  "single-node/docker-compose.yml": {
+    "sha256": "c320060156fb0c4d07156357bcd3f02b8aa638ac88c34b573adf332dfa9279ce",
+    "url": "https://raw.githubusercontent.com/wazuh/wazuh-docker/v4.14.10/single-node/docker-compose.yml"
+  },
+  "single-node/generate-indexer-certs.yml": {
+    "sha256": "52ee85cc771518de548738c31cd75d3af1af5979c90247e90250f2802fbca889",
+    "url": "https://raw.githubusercontent.com/wazuh/wazuh-docker/v4.14.10/single-node/generate-indexer-certs.yml"
+  },
+  "single-node/config/certs.yml": {
+    "sha256": "01dfd585599e9b8d56c7cafd874eae7ff27ee538af250fc13d55afd1f80abd68",
+    "url": "https://raw.githubusercontent.com/wazuh/wazuh-docker/v4.14.10/single-node/config/certs.yml"
+  },
+  "single-node/config/wazuh_cluster/wazuh_manager.conf": {
+    "sha256": "b137a003c617aee4a980e9eb132ced34c746a7807089a67a107dbbae74518fce",
+    "url": "https://raw.githubusercontent.com/wazuh/wazuh-docker/v4.14.10/single-node/config/wazuh_cluster/wazuh_manager.conf"
+  },
+  "single-node/config/wazuh_indexer/wazuh.indexer.yml": {
+    "sha256": "8273837e2047a6a02a05c2ac3802c7d19e578a454e6250e0e1b5e2a8693bf295",
+    "url": "https://raw.githubusercontent.com/wazuh/wazuh-docker/v4.14.10/single-node/config/wazuh_indexer/wazuh.indexer.yml"
+  },
+  "single-node/config/wazuh_indexer/internal_users.yml": {
+    "sha256": "51aa50ddb9783a711b923f5fd32010a11fa6a5fa23fb140fd47a3ae3e0c82b2c",
+    "url": "https://raw.githubusercontent.com/wazuh/wazuh-docker/v4.14.10/single-node/config/wazuh_indexer/internal_users.yml"
+  },
+  "single-node/config/wazuh_dashboard/opensearch_dashboards.yml": {
+    "sha256": "3c25160c3e71d399cb1227b0de73f27bb8322f5b2740a89ea48e5fa4241ee8db",
+    "url": "https://raw.githubusercontent.com/wazuh/wazuh-docker/v4.14.10/single-node/config/wazuh_dashboard/opensearch_dashboards.yml"
+  },
+  "single-node/config/wazuh_dashboard/wazuh.yml": {
+    "sha256": "250483503e33f7290155316072d89830d82be375843ba91dbc2cfbfa62877aec",
+    "url": "https://raw.githubusercontent.com/wazuh/wazuh-docker/v4.14.10/single-node/config/wazuh_dashboard/wazuh.yml"
+  },
+  "LICENSE": {
+    "sha256": "edfece046050f6f3df3d1020b35a99ea9f67ee0af4b38c5693988049bb2d6499",
+    "url": "https://raw.githubusercontent.com/wazuh/wazuh-docker/v4.14.10/LICENSE"
+  }
+}

@@ -1,0 +1,47 @@
+%YAML 1.1
+---
+vars:
+  address-groups:
+    HOME_NET: "[10.77.0.0/16]"
+    EXTERNAL_NET: "!$HOME_NET"
+default-log-dir: /var/log/suricata
+default-rule-path: /etc/suricata/rules
+rule-files:
+  - campus.rules
+  - /var/lib/suricata/rules/suricata.rules
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert
+        - http
+        - dns
+        - tls
+        - stats:
+            totals: yes
+            threads: no
+  - stats:
+      enabled: yes
+      filename: stats.log
+      append: yes
+stats:
+  enabled: yes
+  interval: 30
+stream:
+  inline: auto
+  memcap: 128mb
+flow:
+  memcap: 64mb
+app-layer:
+  protocols:
+    http:
+      enabled: yes
+    tls:
+      enabled: yes
+    dns:
+      tcp:
+        enabled: yes
+      udp:
+        enabled: yes

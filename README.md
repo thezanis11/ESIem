@@ -1,0 +1,100 @@
+# Campus Sentinel
+
+**Adaptation de Wazuh à un réseau universitaire segmenté : collecte hôte et réseau, corrélation d’alertes, priorisation et réponse temporaire encadrée.**
+
+Projet de laboratoire inspiré d’un travail réalisé en deuxième année du cycle supérieur à l’ESI. L’architecture est **reconstituée à partir des souvenirs du porteur du projet** ; elle ne décrit pas l’infrastructure réelle de l’école. Aucun accès au réseau de l’université n’est nécessaire.
+
+## État vérifiable
+
+Le code de l’extension, les configurations et les procédures de déploiement sont présents. Les tests Python et les scénarios synthétiques sont exécutables sur un PC, sans VM ni téléchargement de données. Le pare-feu a été analysé par `nft --check` sans application des règles. La configuration générée est acceptée par `docker compose config --quiet`.
+
+**Le laboratoire Wazuh complet, les agents et l’IPS en circulation réelle ne sont pas encore exécutés.** Leur recette nécessite un hôte disposant de suffisamment de mémoire et de stockage. Les contrôles natifs Wazuh et Suricata sont fournis séparément ; leur présence dans le dépôt ne signifie pas qu’ils ont réussi. Voir [la validation](docs/VALIDATION_FR.md).
+
+## Architecture
+
+```mermaid
+flowchart LR
+  EXT["Réseau externe simulé\n192.0.2.0/24"] --- FW["Passerelle Ubuntu\nnftables + Suricata IDS / IPS"]
+  FW --- STUD["Étudiants\n10.77.20.0/24"]
+  FW --- STAFF["Personnel\n10.77.30.0/24"]
+  FW --- DMZ["DMZ : serveur portail\n10.77.40.10"]
+  FW --- SERV["Serveurs : fichiers SSH/SFTP\n10.77.50.10"]
+  FW --- MGMT["Supervision / administration\n10.77.10.0/24"]
+  MGMT --- SOC["Wazuh manager + indexer + dashboard\n10.77.10.10"]
+  SOC --- CORR["Corrélation Campus Sentinel\nSQLite + audit + rapport hors ligne"]
+  STUD -. "Agent TCP 1514" .-> SOC
+  STAFF -. "Agent TCP 1514" .-> SOC
+  DMZ -. "Agent TCP 1514" .-> SOC
+  SERV -. "Agent TCP 1514" .-> SOC
+  FW -. "Agent : EVE JSON + événements système" .-> SOC
+```
+
+Deux serveurs de service, deux postes, une passerelle et un hôte SOC. Un poste d’administration peut être une VM séparée ou un poste raccordé au réseau de supervision. Les composants centraux Wazuh sont séparés en conteneurs sur le même hôte SOC ; cette version **n’est pas un cluster à haute disponibilité**.
+
+## Travail propre au projet
+
+- Plan d’adressage, filtrage entre cinq zones, protection contre l’usurpation d’adresse et chaîne IPS distincte du filtrage.
+- Génération depuis **Wazuh 4.14.10** : sources officielles vérifiées par SHA-256, mots de passe aléatoires cohérents entre composants, utilisateurs de démonstration retirés, enrôlement réseau fermé, interface et API limitées à l’hôte.
+- Collecte centralisée : authentification SSH, audit Linux, intégrité des fichiers sensibles, EVE Suricata et configuration optionnelle des événements Windows/Sysmon.
+- Extensions des règles Wazuh sans écraser les règles éditeur ; deux marqueurs HTTP inoffensifs servent à tester la différence entre détection et blocage. Les règles ET Open sont téléchargées sur la VM par Suricata-Update.
+- Moteur de corrélation : tentatives répétées par source/compte/hôte, connexion après échecs, connexion suivie d’un changement sensible, rapprochement entre observations réseau et hôte. La criticité de la destination intervient dans la priorité.
+- Transactions SQLite, déduplication, reprise après redémarrage, événements retardés dans une fenêtre bornée, chaîne d’audit et vérification de cohérence avec les incidents.
+- Réponse optionnelle : isolation de cinq minutes dans un ensemble nftables dédié, uniquement pour une plage de postes du laboratoire ; simulation par défaut.
+- Rapport HTML autonome, filtres de priorité et références aux preuves. Aucun service d’analyse externe ni bibliothèque JavaScript distante.
+
+Wazuh fournit déjà la collecte, les décodeurs standard, de nombreuses détections, l’inventaire, la SCA et le stockage/indexage. Ce projet les configure et les étend ; il ne prétend pas avoir réécrit ces fonctionnalités. La détection des vulnérabilités est initialement désactivée dans le générateur jusqu’à validation des flux sortants et du dimensionnement.
+
+## Essai immédiat sans VM
+
+Python 3.12 ou plus récent. Depuis la racine du projet :
+
+```sh
+python -m unittest discover -v
+python tools/evaluate.py
+python -m campus ingest tests/demo-alerts.jsonl --db runtime/demo.db
+python -m campus report --db runtime/demo.db --output runtime/demo.html
+python -m campus audit --db runtime/demo.db
+```
+
+Ouvrir `reports/demo.html` pour le rapport de démonstration déjà généré. Ces événements sont **synthétiques**, au format des alertes Wazuh. Il n’y a ni entraînement de modèle ni score de précision sur des attaques réelles. Les cas attendus sont définis à part dans `tests/fixtures.py` et les résultats dans `reports/regression.json`.
+
+## Préparer les VM
+
+Sur la machine de préparation ou le futur hôte SOC :
+
+```sh
+python -m venv .venv
+# Linux : source .venv/bin/activate
+# Windows PowerShell : .\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m campus preflight
+python tools/render_network.py
+python -m campus prepare --manager-bind 10.77.10.10
+```
+
+`prepare` refuse d’écraser un déploiement existant. Les mots de passe, clés, volumes, bases d’incidents et fichiers réseau générés sont exclus de Git. Ils ne doivent pas être publiés.
+
+Le SOC exige au minimum 4 vCPU, 8 Gio de RAM et 50 Go de stockage selon [Wazuh](https://documentation.wazuh.com/current/deployment-options/docker/wazuh-container.html). Le laboratoire complet est dimensionné ici pour un hôte d’au moins 24 Gio de RAM et environ 180 Go libres, idéalement 32 Gio de RAM. Ce budget est une proposition de laboratoire, pas une mesure de charge. Ne pas confondre taille virtuelle d’un disque et espace libre sur l’hôte physique.
+
+Suivre [le guide de déploiement](docs/DEPLOYMENT_FR.md), puis [la recette](docs/ACCEPTANCE_FR.md). Les accès, interfaces réseau et capacités du futur hôte restent à renseigner.
+
+## Organisation
+
+| Dossier | Contenu |
+|---|---|
+| `campus/` | Corrélation, audit, génération sécurisée, rapport et réponse optionnelle |
+| `wazuh/` | Règles locales et configurations centralisées des agents |
+| `infra/` | Passerelle, règles Suricata, audit Linux et serveur portail |
+| `config/` | Actifs, topologie, politique de réponse et rétention |
+| `tools/` | Inventaire, contrôles, recette native Wazuh, ingestion et génération réseau |
+| `tests/` | Tests automatisés et événements synthétiques identifiés |
+| `vendor/wazuh-docker/` | Petits fichiers officiels non modifiés, licence et manifeste de provenance |
+| `docs/` | Installation, limites, méthode et procédure d’exploitation |
+
+## Limites et attribution
+
+La corrélation est conçue pour un petit laboratoire et utilise des seuils explicites. Elle ne remplace pas un moteur distribué de production. Le trafic chiffré n’est pas déchiffré par Suricata. Un succès SSH après échecs ou une association temporelle ne prouve pas une compromission. La chaîne d’audit nécessite une empreinte conservée hors de l’hôte pour résister à une réécriture complète.
+
+Le développement a bénéficié d’une assistance IA. Les résultats exécutés et les éléments restant à valider sont distingués dans la documentation. Ne présenter en entretien que les expériences réellement réalisées et comprises.
+
+Licence : GPL-2.0, voir `LICENSE` et [les attributions](THIRD_PARTY_NOTICES.md).
