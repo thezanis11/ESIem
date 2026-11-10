@@ -2,7 +2,7 @@
 
 ## Exécuté localement
 
-- 20 tests Python : corrélation, cas négatifs, ordre d’arrivée, déduplication, redémarrage, contrôle d’audit, protection du rapport, génération des secrets et portée de la réponse.
+- 22 tests Python : corrélation, cas négatifs, ordre d’arrivée, déduplication, redémarrage, contrôle d’audit, protection du rapport, génération des secrets, portée de la réponse et garde-fous de création des VM.
 - 16 scénarios synthétiques comparant les catégories d’incident observées aux résultats attendus. Résultat : 16/16, voir `reports/regression.json`.
 - Vérification des empreintes des neuf fichiers officiels Wazuh.
 - Analyse XML des règles locales et groupes d’agents ; unicité et plage des identifiants de règles.
@@ -22,7 +22,7 @@ Ces tests ne donnent pas un taux de détection sur le réseau d’une universit�
 - Tests des agents Windows/Sysmon, charge prolongée, sauvegarde/restauration et fonctionnement après redémarrage complet.
 - Exécution des workflows GitHub Actions : ils sont fournis, mais aucun résultat distant n’est revendiqué.
 
-La contrainte rencontrée est l’espace disque physique du poste de préparation, inférieur aux prérequis du SOC. Le futur serveur/les VM ne sont pas encore identifiés. Aucune installation ni modification de pare-feu n’a été faite sur le réseau de l’utilisateur.
+La contrainte initiale de stockage sur C: a été résolue pour les VM grâce au disque USB G: choisi par l’utilisateur. Sept VM VirtualBox ESIem ont été créées, toutes éteintes. L’image Ubuntu est téléchargée et vérifiée, mais les systèmes invités n’ont pas encore démarré et Wazuh n’y est pas installé. La mémoire disponible ne permet pas actuellement de lancer le SOC ; l’utilisateur demande de reporter les démarrages à la campagne nocturne. Aucune règle de pare-feu n’a été appliquée au réseau de l’utilisateur. Voir `VIRTUALBOX_FR.md` et `OVERNIGHT_FR.md`.
 
 ## Reproduire les contrôles
 

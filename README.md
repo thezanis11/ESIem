@@ -78,6 +78,8 @@ Le SOC exige au minimum 4 vCPU, 8 Gio de RAM et 50 Go de stockage selon [Wazuh](
 
 Suivre [le guide de déploiement](docs/DEPLOYMENT_FR.md), puis [la recette](docs/ACCEPTANCE_FR.md). Les accès, interfaces réseau et capacités du futur hôte restent à renseigner.
 
+Un laboratoire VirtualBox a depuis été préparé sur le disque USB G: : sept VM éteintes et une image Ubuntu officielle vérifiée. Les systèmes invités et Wazuh restent à démarrer et valider lorsque la mémoire sera disponible. Voir [le profil VirtualBox](docs/VIRTUALBOX_FR.md) et [les consignes de reprise](docs/OVERNIGHT_FR.md).
+
 ## Organisation
 
 | Dossier | Contenu |
