@@ -1,5 +1,7 @@
 # Consignes pour la reprise autonome d’ESIem
 
+> Document de préparation historique. Le signal de départ a ensuite été reçu et la campagne a été exécutée. Consulter `VALIDATION_FR.md` pour les résultats actuels et `VIRTUALBOX_FR.md` pour les commandes ; les constats ci-dessous décrivent l’état avant ce lancement.
+
 ## Choix confirmés par l’utilisateur
 
 - Nom public : **ESIem**, en remplacement de Campus Sentinel.

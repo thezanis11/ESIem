@@ -8,4 +8,15 @@ runtime/
 *.pem
 .env
 reports/local-*
+client.keys
+authd.pass
+id_ed25519*
+*.vdi
+*.vmdk
+*.qcow2
+*.iso
+*.ova
+*.vbox
+*.vbox-prev
+*.log
 .cache/

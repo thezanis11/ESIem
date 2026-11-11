@@ -1,0 +1,44 @@
+{
+  "kernel": "6.8.0-147-generic",
+  "measurement": "Container-lifetime peak memory and OOM counters, not a throughput benchmark",
+  "containers": {
+    "campussentinel-wazuh.manager-1": {
+      "running": true,
+      "pid1_oom_killed": false,
+      "restart_count": 0,
+      "oom_kills": 0,
+      "peak_memory_bytes": 594661376
+    },
+    "campussentinel-wazuh.indexer-1": {
+      "running": true,
+      "pid1_oom_killed": false,
+      "restart_count": 0,
+      "oom_kills": 0,
+      "peak_memory_bytes": 1199763456
+    },
+    "campussentinel-wazuh.dashboard-1": {
+      "running": true,
+      "pid1_oom_killed": false,
+      "restart_count": 0,
+      "oom_kills": 0,
+      "peak_memory_bytes": 310153216
+    },
+    "esiem-test-agent": {
+      "running": true,
+      "pid1_oom_killed": false,
+      "restart_count": 0,
+      "oom_kills": 0,
+      "peak_memory_bytes": 47079424
+    }
+  },
+  "stable": true,
+  "local_environment": {
+    "vm": "ESIem-soc",
+    "memory_mib": 3712,
+    "vcpus": 4,
+    "endpoint_memory_mib": 256,
+    "profile": "config/compose.compact.yml",
+    "scope": "Short low-load acceptance run; not a production sizing benchmark"
+  },
+  "source_sha256": "d274a8a62ac4b0b7b79dedbfa084d585daf53df9a8d91aec21c2ed23bee7ae78"
+}

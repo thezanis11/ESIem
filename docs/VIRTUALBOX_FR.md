@@ -26,7 +26,9 @@ Ne pas rejouer `--create` sur les machines déjà préparées : le script refuse
 
 `seed_virtualbox.py` vérifie que chaque VM est éteinte et que son fichier de configuration appartient au répertoire exact du laboratoire. Il conserve les petits disques vides initiaux, clone un disque Ubuntu indépendant, agrandit sa capacité et attache un disque d’initialisation NoCloud. Aucune mémoire de VM n’est consommée avant son démarrage.
 
-Sur Windows, la préparation des empreintes de mots de passe de console utilise OpenSSL dans la distribution WSL Ubuntu déjà présente. Sur Linux, elle utilise OpenSSL directement. La clé SSH et les mots de passe de console restent dans `runtime/vm-access`, exclu de Git. Ne pas publier ce dossier ni les ISO d’initialisation.
+Sur Windows, les empreintes de mots de passe de console utilisent OpenSSL fourni avec Git ; WSL Ubuntu sert de solution de repli si ce binaire est absent. Sur Linux, le script utilise OpenSSL directement. La clé SSH et les mots de passe de console restent dans `runtime/vm-access`, exclu de Git. Ne pas publier ce dossier ni les ISO d’initialisation.
+
+L’image VMDK officielle est convertie une seule fois en base VDI de 16 Gio, puis chaque VM reçoit une copie indépendante. Cela évite un conflit de registre VirtualBox avec l’UUID nul de certaines images VMDK. Le profil VirtualBox alloue donc au moins 16 Gio par disque système, même si le budget abstrait d’un petit endpoint indique 12 Gio.
 
 ## Système invité et accès
 

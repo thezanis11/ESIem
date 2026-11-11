@@ -1,0 +1,32 @@
+{
+  "native_engine": true,
+  "tests": [
+    {
+      "test": "ssh_invalid_user",
+      "expected": "5710:5:sshd",
+      "passed": true
+    },
+    {
+      "test": "priority_suricata",
+      "expected": "110001:10:json",
+      "passed": true
+    },
+    {
+      "test": "ids_marker",
+      "expected": "110002:8:json",
+      "passed": true
+    },
+    {
+      "test": "ips_marker",
+      "expected": "110003:10:json",
+      "passed": true
+    },
+    {
+      "test": "normal_suricata_alert",
+      "expected": "86601:3:json",
+      "passed": true
+    }
+  ],
+  "ci_source": "https://github.com/thezanis11/ESIem/actions/runs/42925135672",
+  "ci_artifact_sha256": "ea69086856d0bbe742a2cbb13a7a94300e50250dc4de31de863b827960ae034f"
+}

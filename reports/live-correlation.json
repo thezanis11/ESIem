@@ -1,0 +1,132 @@
+{
+  "provenance": "real agent transport; synthetic test log injection and real file modification",
+  "incidents": [
+    {
+      "asset": "files",
+      "automatic_containment": false,
+      "detection": "sensitive_file_change",
+      "evidence": [
+        "cddb62a68a86371c2ca9dd52e3abff17e576b389c00a1a22746ca99fde20cc1c"
+      ],
+      "evidence_count": 1,
+      "explanation": "Sensitive file modified; compare against approved maintenance.",
+      "first_seen": 1794354089.937,
+      "id": "10e819053809e07f1c69ac32",
+      "last_seen": 1794354089.937,
+      "mitre": [
+        "T1098"
+      ],
+      "severity": "high",
+      "source_ip": "",
+      "status": "open",
+      "username": ""
+    },
+    {
+      "asset": "portal",
+      "automatic_containment": false,
+      "detection": "network_alert",
+      "evidence": [
+        "920784b57fd867f6ee1e519070e411015336e42842c47c1508c6f56de15005ee"
+      ],
+      "evidence_count": 1,
+      "explanation": "Network sensor alert; priority includes destination asset criticality. A signature match does not prove compromise.",
+      "first_seen": 1794354091.585,
+      "id": "1d95f1602601f70ed2c693bc",
+      "last_seen": 1794354091.585,
+      "mitre": [],
+      "severity": "high",
+      "source_ip": "10.77.20.10",
+      "status": "open",
+      "username": ""
+    },
+    {
+      "asset": "portal",
+      "automatic_containment": false,
+      "detection": "network_alert",
+      "evidence": [
+        "91dda7759595d3be836ea67ca4e63e565583f10627c16ccd7e2080630b021036"
+      ],
+      "evidence_count": 1,
+      "explanation": "Network sensor alert; priority includes destination asset criticality. A signature match does not prove compromise.",
+      "first_seen": 1794354091.545,
+      "id": "50964262bd27f4676d324084",
+      "last_seen": 1794354091.545,
+      "mitre": [],
+      "severity": "high",
+      "source_ip": "10.77.20.10",
+      "status": "open",
+      "username": ""
+    },
+    {
+      "asset": "files",
+      "automatic_containment": false,
+      "detection": "ssh_guessing",
+      "evidence": [
+        "57d08bf91173bc957c2184ccc483925c2638783b9e5d326f2adb2e5d9ad57cb5",
+        "cf9ccd0b81771b798e186fc9167bfda8f5b5b801d96bd2c90da8b208c41fa653",
+        "f103d0787e6aeb3506ceb66c6e385af31df50c70a9a0a4acc64baffb3c607198",
+        "668ff514521b25f8e1cf35aaaba1641493fdabb13a4f86b8800be6ab2cc12540",
+        "addebac40719c1ccaeacb8080d91c386f77d8244b08c2e39208d3e11fd362219",
+        "2af445d60ebfb86f0df93fec7ea0091e72d0f232287de803eebf87b44ae6035f"
+      ],
+      "evidence_count": 6,
+      "explanation": "At least five failures for the same source, account and host within 60 seconds.",
+      "first_seen": 1794354091.53,
+      "id": "ae3f80cdb8b3eff7d59c06d6",
+      "last_seen": 1794354091.539,
+      "mitre": [
+        "T1110.001"
+      ],
+      "severity": "high",
+      "source_ip": "10.77.30.10",
+      "status": "open",
+      "username": "esiem_student"
+    },
+    {
+      "asset": "files",
+      "automatic_containment": false,
+      "detection": "network_host_corroboration",
+      "evidence": [
+        "2af445d60ebfb86f0df93fec7ea0091e72d0f232287de803eebf87b44ae6035f",
+        "348c50cc69779056a9925fe6230f0d555ebda996cdbb55dde01640b19b39d0fc"
+      ],
+      "evidence_count": 2,
+      "explanation": "Independent host and network observations share source and destination asset within five minutes.",
+      "first_seen": 1794354091.539,
+      "id": "fc60c1234887205d4d503709",
+      "last_seen": 1794354091.541,
+      "mitre": [
+        "T1110"
+      ],
+      "severity": "critical",
+      "source_ip": "10.77.30.10",
+      "status": "open",
+      "username": "esiem_student"
+    },
+    {
+      "asset": "files",
+      "automatic_containment": false,
+      "detection": "network_alert",
+      "evidence": [
+        "348c50cc69779056a9925fe6230f0d555ebda996cdbb55dde01640b19b39d0fc"
+      ],
+      "evidence_count": 1,
+      "explanation": "Network sensor alert; priority includes destination asset criticality. A signature match does not prove compromise.",
+      "first_seen": 1794354091.541,
+      "id": "fd6d2d3f0c5458ab72c45657",
+      "last_seen": 1794354091.541,
+      "mitre": [],
+      "severity": "high",
+      "source_ip": "10.77.30.10",
+      "status": "open",
+      "username": ""
+    }
+  ],
+  "audit": {
+    "records": 7,
+    "head_sha256": "7a33c40c2896165286ea36485625da117a213509f59a80602ef93b51d90f8d88",
+    "limit": "Requires an externally retained head hash to detect truncation or a fully rewritten chain."
+  },
+  "ci_source": "https://github.com/thezanis11/ESIem/actions/runs/42925135672",
+  "ci_artifact_sha256": "537fbb29d14c1c90d92de9aa36b109919eec2feb034ea66fe4a9945edbc73ddf"
+}

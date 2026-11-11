@@ -1,4 +1,4 @@
-name: Campus checks
+name: ESIem checks
 on:
   push:
   pull_request:

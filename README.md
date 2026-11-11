@@ -6,9 +6,21 @@ Projet de laboratoire inspiré d’un travail réalisé en deuxième année du c
 
 ## État vérifiable
 
-Le code de l’extension, les configurations et les procédures de déploiement sont présents. Les tests Python et les scénarios synthétiques sont exécutables sur un PC, sans VM ni téléchargement de données. Le pare-feu a été analysé par `nft --check` sans application des règles. La configuration générée est acceptée par `docker compose config --quiet`.
+Le projet a été exécuté et corrigé à partir de tests natifs, pas uniquement d’une validation des fichiers de configuration.
 
-**Le laboratoire Wazuh complet, les agents et l’IPS en circulation réelle ne sont pas encore exécutés.** Leur recette nécessite un hôte disposant de suffisamment de mémoire et de stockage. Les contrôles natifs Wazuh et Suricata sont fournis séparément ; leur présence dans le dépôt ne signifie pas qu’ils ont réussi. Voir [la validation](docs/VALIDATION_FR.md).
+| Vérification | Résultat | Preuve |
+|---|---:|---|
+| Tests Python, dont isolation des clés entre agents | 24 réussis | Suite `tests/` et workflow `ci.yml` |
+| Scénarios de régression synthétiques | 16/16 | [Résultats](reports/regression.json) |
+| Règles et décodeurs dans le vrai `wazuh-logtest` | 5/5 | [Rapport](reports/wazuh-integration.json) |
+| Pile Wazuh, agent, intégrité, corrélation et indexation | 14/14 | [Rapport](reports/stack-acceptance.json) |
+| Paquets réels : segmentation, IDS, IPS et isolation de 300 s | 19/19 | [Rapport CI](reports/network-acceptance.json) |
+| Même recette réseau dans une VM VirtualBox | 19/19 | [Rapport local](reports/virtualbox-network-acceptance.json) |
+| Pile complète dans la VM SOC compacte, 3 712 Mio | 14/14, aucun OOM observé | [Recette](reports/compact-stack-acceptance.json), [mémoire](reports/compact-resources.json) |
+
+Les tests réseau utilisent des marqueurs HTTP inoffensifs. La recette SIEM combine des lignes SSH synthétiques, une vraie modification de fichier et le rejeu d’événements EVE capturés lors des tests de paquets. **Ces résultats ne mesurent pas un taux de détection d’attaques réelles.** Les zones réseau sont des namespaces Linux dans la recette automatisée ; la pile Wazuh et son agent sont de vrais services en conteneurs.
+
+Les sept disques de VM sont préparés sur le PC de développement ; les VM SOC et passerelle ont réellement démarré. Les sept VM n’ont pas été exploitées ensemble. Les limites de mémoire et l’incident de noyau local, suivi d’une recette réussie, sont documentés dans [la validation](docs/VALIDATION_FR.md).
 
 ## Architecture
 
@@ -58,6 +70,8 @@ python -m campus audit --db runtime/demo.db
 
 Ouvrir `reports/demo.html` pour le rapport de démonstration déjà généré. Ces événements sont **synthétiques**, au format des alertes Wazuh. Il n’y a ni entraînement de modèle ni score de précision sur des attaques réelles. Les cas attendus sont définis à part dans `tests/fixtures.py` et les résultats dans `reports/regression.json`.
 
+Le rapport `reports/validated-incidents.html` présente les incidents issus de la recette native du SIEM, avec leur provenance de laboratoire. Les liens de campagne et les résultats sont conservés dans les rapports JSON versionnés.
+
 ## Préparer les VM
 
 Sur la machine de préparation ou le futur hôte SOC :
@@ -76,9 +90,9 @@ python -m campus prepare --manager-bind 10.77.10.10
 
 Le SOC exige au minimum 4 vCPU, 8 Gio de RAM et 50 Go de stockage selon [Wazuh](https://documentation.wazuh.com/current/deployment-options/docker/wazuh-container.html). Le laboratoire complet est dimensionné ici pour un hôte d’au moins 24 Gio de RAM et environ 180 Go libres, idéalement 32 Gio de RAM. Ce budget est une proposition de laboratoire, pas une mesure de charge. Ne pas confondre taille virtuelle d’un disque et espace libre sur l’hôte physique.
 
-Suivre [le guide de déploiement](docs/DEPLOYMENT_FR.md), puis [la recette](docs/ACCEPTANCE_FR.md). Les accès, interfaces réseau et capacités du futur hôte restent à renseigner.
+Suivre [le guide de déploiement](docs/DEPLOYMENT_FR.md), puis [la recette](docs/ACCEPTANCE_FR.md). Docker Compose 2.30 ou plus récent est nécessaire pour le contrôle de permissions des groupes après démarrage. Le port d’enrôlement distant reste fermé ; le service local d’enrôlement fonctionne pour maintenir la cohérence de la base d’agents.
 
-Un laboratoire VirtualBox a depuis été préparé sur le disque USB G: : sept VM éteintes et une image Ubuntu officielle vérifiée. Les systèmes invités et Wazuh restent à démarrer et valider lorsque la mémoire sera disponible. Voir [le profil VirtualBox](docs/VIRTUALBOX_FR.md) et [les consignes de reprise](docs/OVERNIGHT_FR.md).
+Le profil VirtualBox et les scripts de préparation sont décrits dans [ce guide](docs/VIRTUALBOX_FR.md). Un profil compact optionnel, avec plafonds de mémoire, se trouve dans `config/compose.compact.yml` : il a passé la recette dans une VM de 3 712 Mio avec un agent de test plafonné à 256 Mio. Cet essai à faible charge ne remplace pas le dimensionnement officiel à 8 Gio. Pour reprendre la démonstration locale, voir [les instructions de reprise](docs/DEMO_LOCALE_FR.md).
 
 ## Organisation
 

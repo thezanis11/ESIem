@@ -87,7 +87,7 @@ sudo bash infra/agents/install-agent.sh
 
 Ce script configure le dépôt signé de Wazuh, installe l’agent `4.14.10-1`, l’audit Linux et la collecte système. Le gel du paquet évite un changement majeur imprévu ; les mises à jour de sécurité restent une opération à planifier et à retester. Il ne remplace pas la configuration réseau de la VM.
 
-L’enrôlement réseau sur TCP 1515 est fermé. Utiliser l’enrôlement par clé hors ligne :
+L’enrôlement réseau sur TCP 1515 est fermé par `remote_enrollment=no`. Le service local `authd` reste actif pour tenir à jour la base d’agents ; le désactiver complètement empêche l’enrôlement cohérent. Utiliser l’enrôlement par clé hors ligne :
 
 1. Sur le SOC, ouvrir l’outil interactif du manager :
 
@@ -106,6 +106,8 @@ L’enrôlement réseau sur TCP 1515 est fermé. Utiliser l’enrôlement par cl
    La passerelle reçoit les groupes `linux` **et** `gateway`. Les autres VM Ubuntu reçoivent `linux`. Vérifier les groupes et leur synchronisation avec `agent_groups -s -i 001` et `agent_groups -S -i 001`.
 
 Les configurations sont montées par le chemin de personnalisation officiel `/wazuh-config-mount`, puis copiées par l’image du manager dans son volume de configuration. Vérifier leur présence effective après le premier démarrage. Ne pas modifier uniquement le volume à la main : ces modifications seraient difficiles à reproduire.
+
+Docker Compose 2.30 ou plus récent exécute le hook qui prépare les permissions des groupes après disponibilité du manager. Pour mettre à jour les extensions sans changer les secrets ni les volumes : `python tools/update_extensions.py`, puis recréer uniquement le service manager avec `docker compose -p campussentinel -f runtime/soc/docker-compose.yml up -d --force-recreate --no-deps wazuh.manager`.
 
 Une automatisation Ansible facultative est fournie dans `infra/ansible/`. Elle exige un poste d’administration avec Ansible, les clés SSH des VM et un inventaire adapté. Elle copie uniquement les sources nécessaires et installe les rôles Ubuntu ; elle ne crée pas les VM, ne modifie pas leur réseau et n’importe pas les secrets des agents. Le playbook n’a pas encore été exécuté sur un parc de VM.
 

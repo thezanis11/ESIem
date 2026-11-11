@@ -1,0 +1,71 @@
+{
+  "profile": "full-stack",
+  "completed": true,
+  "provenance": "real native Wazuh services and agent; labelled test logs",
+  "tests": [
+    {
+      "test": "manager_analysis_running",
+      "passed": true
+    },
+    {
+      "test": "native_rules_and_decoders",
+      "passed": true
+    },
+    {
+      "test": "remote_enrollment_listener_closed",
+      "passed": true
+    },
+    {
+      "test": "indexer_authenticated_tls",
+      "passed": true
+    },
+    {
+      "test": "dashboard_authenticated_tls",
+      "passed": true
+    },
+    {
+      "test": "agent_authenticated_online",
+      "passed": true
+    },
+    {
+      "test": "ssh_events_received",
+      "passed": true
+    },
+    {
+      "test": "eve_event_decoded",
+      "passed": true
+    },
+    {
+      "test": "integrity_event_received",
+      "passed": true
+    },
+    {
+      "test": "captured_packet_events_received",
+      "passed": true
+    },
+    {
+      "test": "native_alerts_correlated",
+      "passed": true,
+      "observed": [
+        "network_alert",
+        "network_host_corroboration",
+        "sensitive_file_change",
+        "ssh_guessing"
+      ]
+    },
+    {
+      "test": "captured_packet_asset_resolved",
+      "passed": true
+    },
+    {
+      "test": "alert_indexed_and_searchable",
+      "passed": true
+    },
+    {
+      "test": "captured_packets_indexed",
+      "passed": true
+    }
+  ],
+  "ci_source": "https://github.com/thezanis11/ESIem/actions/runs/42925135672",
+  "ci_artifact_sha256": "399e0848645fd4eba820883981bc1461c64e91f89c14e1caa99f7bb1720a6e9b"
+}

@@ -1,0 +1,92 @@
+{
+  "real_packets": true,
+  "completed": true,
+  "expected_tests": 19,
+  "engine": "Linux namespaces + nftables + Suricata",
+  "tests": [
+    {
+      "test": "student_to_portal_allowed",
+      "passed": true
+    },
+    {
+      "test": "student_to_files_denied",
+      "passed": true
+    },
+    {
+      "test": "staff_to_files_allowed",
+      "passed": true
+    },
+    {
+      "test": "wan_to_portal_denied",
+      "passed": true
+    },
+    {
+      "test": "agent_telemetry_allowed",
+      "passed": true
+    },
+    {
+      "test": "ids_service_running",
+      "passed": true
+    },
+    {
+      "test": "ids_marker_passes",
+      "passed": true
+    },
+    {
+      "test": "ids_drop_rule_is_passive",
+      "passed": true
+    },
+    {
+      "test": "ids_alerts_observed",
+      "passed": true
+    },
+    {
+      "test": "ips_service_running",
+      "passed": true
+    },
+    {
+      "test": "ips_baseline_passes",
+      "passed": true
+    },
+    {
+      "test": "ips_marker_blocked",
+      "passed": true
+    },
+    {
+      "test": "ips_block_evidence",
+      "passed": true
+    },
+    {
+      "test": "queue_fails_closed",
+      "passed": true
+    },
+    {
+      "test": "queue_rollback_restores_traffic",
+      "passed": true
+    },
+    {
+      "test": "quarantine_blocks_endpoint",
+      "passed": true
+    },
+    {
+      "test": "quarantine_preserves_telemetry",
+      "passed": true
+    },
+    {
+      "test": "protected_address_rejected",
+      "passed": true
+    },
+    {
+      "test": "quarantine_expires_automatically",
+      "passed": true
+    }
+  ],
+  "platform": {
+    "hypervisor": "VirtualBox 7.2.4 on Windows 11",
+    "guest": "Ubuntu 24.04.5",
+    "kernel": "6.8.0-147-generic",
+    "RAM_MiB": 2048,
+    "vcpus": 1
+  },
+  "recovery_note": "The initial 1024 MiB / 2 vCPU attempt soft-locked in the guest kernel. The completed run uses 2048 MiB / 1 vCPU, no competing sensor/agent service and no Suricata command socket. Root cause is not attributed to a single change."
+}
